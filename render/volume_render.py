@@ -29,7 +29,7 @@ def volume_render( ray_origins, ray_directions, model, near, far, num_samples = 
         The rendered image as an RGB map.
     """
 
-    # step 1: sample points along each raya
+    # step 1: sample points along each ray
     t_vals = torch.linspace( near, far, num_samples )
     t_vals = t_vals.expand( [ray_origins.shape[0], num_samples]) # [ batch_size, num_samples ]
 
