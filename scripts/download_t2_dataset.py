@@ -250,11 +250,17 @@ def download_image_sets(pathname, scene, image_md5_dict, calc_md5):
     idd = id_download_dict[download_file]
     download_file_from_google_drive(idd, download_file_local)
 
-    if (calc_md5):
+    if calc_md5 and scene in image_md5_dict:
         h_md5 = generate_file_md5(download_file_local)
         print('\nmd5 downloaded: ' + h_md5)
-        print('md5 original:   ' + image_md5_dict[scene])
-        md5_check = h_md5 == image_md5_dict[scene]
+        if scene in image_md5_dict:
+            print('md5 original:   ' + image_md5_dict[scene])
+            md5_check = h_md5 == image_md5_dict[scene]
+            if not md5_check:
+                print('\nWarning: MD5 does not match, delete file and restart download\n')
+        else:
+            print(f'Warning: No MD5 checksum found for {scene}, skipping MD5 verification.' )
+
 
         if (md5_check):
             if (unpack):
@@ -361,7 +367,7 @@ if __name__ == "__main__":
         'Meetingroom', 'Truck'
     ]
 
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
     sequences = args.group
     calc_md5 = args.calc_md5
 
