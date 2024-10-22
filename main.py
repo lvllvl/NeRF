@@ -1,9 +1,9 @@
 import torch
 import argparse
 import json
-from models.nerf_model import NeRF  # Assuming you have a `nerf_model.py` in your models directory
-from datasets.nerf_dataset import NeRFDataset  # Assuming you have a dataset handler
-from utils import train  # Assuming you have a separate file for training loop logic
+from models.nerf_model import NeRF
+from data.nerf_dataset import NeRFDataset
+from train.train_nerf import train_nerf  
 
 def get_args():
     parser = argparse.ArgumentParser(description="Train NeRF model")
@@ -22,7 +22,8 @@ def load_config(config_path):
     return config
 
 def get_data_loaders(args):
-    dataset = NeRFDataset(args.data_dir, dataset_type=args.dataset)
+    dataset = NeRFDataset(args.data_dir )
+
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     return dataloader
 
@@ -37,7 +38,7 @@ def train_model(args, config):
 
     for epoch in range(args.epochs):
         print(f'Epoch {epoch+1}/{args.epochs}')
-        train(model, dataloader, optimizer, epoch)
+        train_nerf(model, dataloader, optimizer, epoch)
         # Add saving models, logging, etc., if needed
 
 if __name__ == "__main__":
