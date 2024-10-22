@@ -18,7 +18,7 @@ criterion = mse_loss
 
 # Create a checkpoint directory if it does not exist
 if not os.path.exists( config['checkpoint_dir']):
-    os.makedirs(['checkpoint_dir'])
+    os.makedirs(config['checkpoint_dir'])
 
 def train_nerf(data_dir, epochs=config['epochs']):
     """
