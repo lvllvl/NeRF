@@ -6,7 +6,7 @@ from utils.data_loader import load_data
 from utils.rays import generate_rays
 from utils.metrics import compute_psnr
 from utils.visualization_utils import display_image, save_image, display_depth_map, save_depth_map, compare_images, save_comparison
-from losses import mse_loss
+from train.losses import mse_loss
 from train_config import config
 from scheduler import get_scheduler
 
