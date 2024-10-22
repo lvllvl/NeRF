@@ -16,15 +16,9 @@ optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 scheduler = get_scheduler(optimizer, config)
 criterion = mse_loss
 
-# Initialize model, optimizer, and loss function using config values
-model = NeRF(num_freqs=config['num_freqs'])
-optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-scheduler = get_scheduler(optimizer, config)
-criterion = mse_loss
-
 # Create a checkpoint directory if it does not exist
 if not os.path.exists( config['checkpoint_dir']):
-    os.makedirs['checkpoint_dir']
+    os.makedirs(['checkpoint_dir'])
 
 def train_nerf(data_dir, epochs=config['epochs']):
     """

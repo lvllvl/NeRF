@@ -8,6 +8,10 @@ config = {
     'batch_size': 1,
     'learning_rate': 5e-4,
 
+    # NeRF model parameters
+    'num_freqs': 10, # Number of frequencies for positional encoding
+    # This should be adjusted, as needed 
+
     # Scheduler type (choose 'step', 'cosine', or 'exponential')
     'lr_scheduler': 'cosine',
 
