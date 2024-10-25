@@ -21,7 +21,7 @@ def get_data_loaders(args):
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     return dataloader
 
-def get_model_and_optimizer(args):
+def get_model_and_optimizer(args, config):
     
     model = NeRF(num_freqs=config['num_freqs']) 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
@@ -29,7 +29,7 @@ def get_model_and_optimizer(args):
 
 def train_model(args, config):
     dataloader = get_data_loaders(args)
-    model, optimizer = get_model_and_optimizer(args, config)
+    model, optimizer = get_model_and_optimizer(args)
 
     for epoch in range(args.epochs):
         print(f'Epoch {epoch+1}/{args.epochs}')
