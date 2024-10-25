@@ -38,6 +38,7 @@ def train_model(args, config):
 
 if __name__ == "__main__":
     args = get_args()
+    print( f"data_dir after get_args(): {args.data_dir}")
     
     print(f"Training with {args.dataset} dataset located at {args.data_dir}")
     train_model(args, config)
