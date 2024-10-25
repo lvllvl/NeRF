@@ -18,11 +18,11 @@ def get_args():
 def get_data_loaders(args):
     dataset = NeRFDataset(args.data_dir )
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    # dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     return dataloader
 
 def get_model_and_optimizer(args, config):
-    
     model = NeRF(num_freqs=config['num_freqs']) 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
     return model, optimizer
