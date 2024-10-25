@@ -8,7 +8,7 @@ from train.train_config import config
 def get_args():
     parser = argparse.ArgumentParser(description="Train NeRF model")
     parser.add_argument('--dataset', type=str, default='synthetic', help='Dataset type (e.g. synthetic, llff)')
-    parser.add_argument('--data_dir', type=str, default='data/synthetic/lego', help='Directory of dataset')
+    parser.add_argument('--data_dir', type=str, default='data/synthetic/lego/train', help='Directory of dataset')
     parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for optimizer')
