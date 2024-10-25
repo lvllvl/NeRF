@@ -29,12 +29,11 @@ def get_model_and_optimizer(args, config):
 
 def train_model(args, config):
     dataloader = get_data_loaders(args)
-    model, optimizer = get_model_and_optimizer(args)
+    model, optimizer = get_model_and_optimizer(args, config)
 
     for epoch in range(args.epochs):
         print(f'Epoch {epoch+1}/{args.epochs}')
         train_nerf(model, dataloader, optimizer, epoch)
-        # Add saving models, logging, etc., if needed
 
 if __name__ == "__main__":
     args = get_args()
