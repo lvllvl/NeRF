@@ -31,20 +31,18 @@ class NeRFDataset:
             image_path = os.path.join( found_dir, image_file )
             print( f"Image path: {image_path}") # Confirming each image path
 
-            self.image_paths.append( image_path )
         
             pose_file = image_file.replace('.png', '.npy' )
             pose_path = os.path.join( self.data_dir, 'poses', pose_file )
             print(f"Pose path: {pose_path}") # Confirming each pose path
 
+            # Only adding if the pose file exists
             if os.path.exists( pose_path ):
-
-                pose = np.load( pose_path )
-                self.poses.append( pose ) 
+                self.image_paths.append( image_path )
+                self.poses.append( np.load( pose_path ))
                 
             else:
                 print( f"Pose file missing for {image_file}")
-                self.poses.append( None ) # Handle missing pose files
 
     def __len__(self):
         return len(self.image_paths)
