@@ -38,8 +38,10 @@ class NeRFDataset:
             print(f"Pose path: {pose_path}") # Confirming each pose path
 
             if os.path.exists( pose_path ):
+
                 pose = np.load( pose_path )
-                self.poses.append( pose )
+                self.poses.append( pose ) 
+                
             else:
                 print( f"Pose file missing for {image_file}")
                 self.poses.append( None ) # Handle missing pose files
@@ -51,7 +53,8 @@ class NeRFDataset:
         # Load image at the specified index
         image_path = self.image_paths[ idx ]
         image = Image.open( image_path )
-        image = np.array( image ) # convert to numpy array, if needed
+        # Convert to numpy array  and normalize [0,1] range
+        image = np.array( image ).astype( np.float32 ) / 255.0
 
         # Get the corresponding pose (if available )
         pose = self.poses[ idx ]
