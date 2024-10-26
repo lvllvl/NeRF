@@ -18,22 +18,22 @@ def get_args():
 def get_data_loaders(args):
     dataset = NeRFDataset(args.data_dir )
 
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    # dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     return dataloader
 
 def get_model_and_optimizer(args, config):
     model = NeRF(num_freqs=config['num_freqs']) 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
-    return model, optimizer
+    scheduler = torch.optim.lr_scheduler.StepLR( optimizer, step_size=config.get('scheduler_step_size', 10), gamma=config.get('scheduler_gamma', 0.9) ) # Optional scheduler
+    return model, optimizer, scheduler
 
 def train_model(args, config):
     dataloader = get_data_loaders(args)
-    model, optimizer = get_model_and_optimizer(args, config)
+    model, optimizer, scheduler = get_model_and_optimizer(args, config)
 
     for epoch in range(args.epochs):
         print(f'Epoch {epoch+1}/{args.epochs}')
-        train_nerf(model, dataloader, optimizer, epoch)
+        train_nerf(model, dataloader, optimizer, epoch, scheduler=scheduler, save_intervals=config.get('save_interval', 5))
 
 if __name__ == "__main__":
     args = get_args()

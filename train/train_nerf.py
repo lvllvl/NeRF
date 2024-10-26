@@ -1,85 +1,82 @@
 import torch
-import numpy as np
 import os
-from models.nerf_model import NeRF
-from utils.data_loader import load_data
 from utils.rays import generate_rays
 from utils.metrics import compute_psnr
-from utils.visualization_utils import display_image, save_image, display_depth_map, save_depth_map, compare_images, save_comparison
+from utils.visualization_utils import display_image, save_image, display_depth_map, save_depth_map
 from train.losses import mse_loss
 from train.train_config import config
-from train.scheduler import get_scheduler
 
-# Initialize model, optimizer, and loss function using config values
-model = NeRF(num_freqs=config['num_freqs'])
-optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-scheduler = get_scheduler(optimizer, config)
-criterion = mse_loss
-
-# Create a checkpoint directory if it does not exist
-if not os.path.exists( config['checkpoint_dir']):
+# Ensure checkpoint and output directory exist
+if not os.path.exists(config['checkpoint_dir']):
     os.makedirs(config['checkpoint_dir'])
 
-def train_nerf(data_dir, epochs=config['epochs']):
+output_dir = 'output'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+def train_nerf(model, dataloader, optimizer, epoch, scheduler=None, save_intervals=5):
     """
     Train the NeRF model and visualize/save images and depth maps after each epoch.
 
     Parameters:
     -----------
-    data_dir: str
-        Path to the dataset containing images and poses.
-    epochs: int
-        Number of epochs to train (default is pulled from config).
+    model: torch.nn.Module
+        The NeRF model to train.
+    dataloader: torch.utils.data.DataLoader
+        Dataloader providing batches of images and poses.
+    optimizer: torch.optim.Optimizer
+        Optimizer for updating model parameters.
+    epoch: int
+        The current epoch number.
+    scheduler: torch.optim.lr_scheduler (optional)
+        Scheduler for adjusting the learning rate.
+    save_intervals: int
+        Interval at which to save model checkpoints.
     """
+    model.train()
+    total_loss = 0
 
-    # Load the data (images and camera poses)
-    images, poses = load_data(data_dir)
+    for batch_idx, (image, pose) in enumerate(dataloader):
+        # Prepare rays and forward pass
+        rays_o, rays_d = generate_rays(pose, image.shape[:2])
+        rgb_pred, density = model(rays_o)
 
-    for epoch in range(epochs):
-        total_loss = 0
+        # Compute the loss
+        loss = mse_loss(rgb_pred, image)
+        total_loss += loss.item()
 
-        for image, pose in zip(images, poses):
+        # Backpropagation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            # Sample rays from the image and cast them into the scene
-            rays_o, rays_d = generate_rays(pose, image.shape[:2])
-
-            # Forward pass through NeRF
-            rgb_pred, density = model(rays_o)
-
-            # Compute the loss (comparing predicted colors with actual image colors)
-            loss = criterion(rgb_pred, image)
-            total_loss += loss.item()
-
-            # Backpropagation
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        # Update the learning rate using the scheduler
+    # Scheduler step
+    if scheduler:
         scheduler.step()
 
-        # Print training progress and PSNR
-        avg_loss = total_loss / len( images )
-        psnr_value = compute_psnr( rgb_pred, image )
-        print(f"Epoch {epoch + 1}, Loss: {total_loss:.4f}, PSNR: {psnr_value:.2f}")
+    # Logging and checkpointing
+    avg_loss = total_loss / len(dataloader)
+    print(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}")
 
-        # Optionally save model checkpoints
-        if (epoch + 1) % config['save_interval'] == 0:
-            checkpoint_path = f'{config["checkpoint_dir"]}nerf_epoch_{epoch + 1}.pth'
-            torch.save(model.state_dict(), checkpoint_path)
-            print(f"Checkpoint saved at: {checkpoint_path}")
+    if (epoch + 1) % save_intervals == 0:
+        checkpoint_path = f'{config["checkpoint_dir"]}/nerf_epoch_{epoch+1}.pth'
+        torch.save(model.state_dict(), checkpoint_path)
+        print(f"Checkpoint saved at: {checkpoint_path}")
+    
+    # Visualization and PSNR calculation
+    with torch.no_grad():
+        for image, pose in dataloader:
+            rays_o, rays_d = generate_rays(pose, image.shape[:2])
+            rgb_pred, density = model(rays_o)
+            psnr_value = compute_psnr(rgb_pred, image)
 
-        # Visualize and save rendered image 
-        display_image(rgb_pred, title=f"Rendered Image Epoch {epoch + 1}")
-        save_image(rgb_pred, f'output/rendered_image_epoch_{epoch + 1}.png')
+            print(f"Epoch {epoch + 1}, PSNR: {psnr_value:.2f}")
 
-        # Compare rendered image with the ground truth
-        ground_truth_image = image  # This is the ground truth image from the dataset
-        compare_images(ground_truth_image, rgb_pred, title1="Ground Truth", title2="Prediction")
-        save_comparison(ground_truth_image, rgb_pred, f'output/comparison_epoch_{epoch + 1}.png')
+            display_image(rgb_pred, title=f"Rendered Image Epoch {epoch + 1}")
+            save_image(rgb_pred, f'{output_dir}/rendered_image_epoch_{epoch + 1}.png')
 
-        # Visualize and save the depth map
-        display_depth_map( density, title=f"Depth Map Epoch {epoch + 1}")
-        save_depth_map( density, f'output/depth_map_epoch_{epoch + 1}.png')
-
-    print("Training is done!")
+            # Visualize and save depth map
+            display_depth_map(density, title=f"Depth Map Epoch {epoch + 1}")
+            save_depth_map(density, f'{output_dir}/depth_map_epoch_{epoch + 1}.png')
+    
+    print("Training for epoch completed.")
