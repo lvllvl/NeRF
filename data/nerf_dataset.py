@@ -56,5 +56,8 @@ class NeRFDataset:
         pose = self.poses[idx]
         if pose is not None:
             pose = torch.from_numpy(pose).float()
-
+        else:
+            # Provide a default pose or placeholder (e.g., identity matrix)
+            pose = torch.eye( 4 ) 
+        
         return image, pose

@@ -16,7 +16,7 @@ def get_args():
     return args
 
 def get_data_loaders(args):
-    dataset = NeRFDataset(args.data_dir )
+    dataset = NeRFDataset(args.data_dir, load_without_pose=True )
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     return dataloader
