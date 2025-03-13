@@ -1,4 +1,5 @@
 import numpy as np
+import torch 
 
 def generate_rays( camera_pose, image_size ):
     """
@@ -33,11 +34,16 @@ def generate_rays( camera_pose, image_size ):
     # (i-W/2) / 2: normalize x-coordinate (horizontal offset) for each pixel
     # -(j - H / 2) / H: normalize y-coordinate (vertical offset) for each pixel and flips it (so positive y points UP)
     # -np.ones_lik(i): adds a constant z-coordinate of -1 to all directions. This assumes camera is pointing in negative z-direction ( a common convention ), the camera is pointing forward
-    # purpose: this gives us a direction for each pixel in 3d space, pointing away from the camera  
+    # purpose: this gives us a direction for each pixel in 3d space, pointing away from the camera
     directions = np.stack( [(i - W / 2) / W, -(j - H / 2) / H, -np.ones_like(i)], -1 )
+    directions = torch.from_numpy( directions ).float().to( camera_pose.device )   
 
-    rays_d = directions @ camera_pose[ :3, :3 ].T
-    rays_o = np.broadcast_to( camera_pose[ :3, 3 ], rays_d.shape )
+    # mat mul for each pixel, rotate direction by camera's rotation
+    # here camera_pose[:3, :3] is a 2D tensor of shape [3,3].
+    rays_d = torch.matmul( directions, camera_pose[:3, :3].T )
+
+    # Broadcast the camera translation to all pixels
+    rays_o = camera_pose[:3, 3].expand_as( rays_d )
 
     return rays_o, rays_d
 
