@@ -26,10 +26,10 @@ class NeRFDataset:
         for image_file in sorted(os.listdir( self.image_dir )):
             image_path = os.path.join(self.image_dir, image_file)
             
-            print( "image_file type:", type( image_file ), image_file )
+            # print( "image_file type:", type( image_file ), image_file )
             # Use os.path.splitext to work with any extension 
             base_name = os.path.splitext( str(image_file) )[0]
-            print( "base_name type:", type( base_name ), base_name )
+            # print( "base_name type:", type( base_name ), base_name )
             
             pose_file = base_name + '.npy'
             pose_path = os.path.join( self.pose_dir, pose_file )

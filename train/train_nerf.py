@@ -37,8 +37,13 @@ def train_nerf(model, dataloader, optimizer, epoch, scheduler=None, save_interva
     total_loss = 0
 
     for batch_idx, (image, pose) in enumerate(dataloader):
-        # Prepare rays and forward pass
-        rays_o, rays_d = generate_rays(pose, image.shape[:2])
+        # Extract height and width from image (assumes shape [C, H, W])
+        H, W = image.shape[1:3]
+
+        # Prepare rays and forward pass, pass in H,W
+        rays_o, rays_d = generate_rays(pose, (H,W))
+
+        # Forward pass: model takes in the ray origins and returns predicted colors (and density)
         rgb_pred, density = model(rays_o)
 
         # Compute the loss
