@@ -21,6 +21,9 @@ def generate_rays( camera_pose, image_size ):
     rays_d: np.ndarray
         - Ray directions.
     """
+    # camera_pse should be a 2D tensor of shape [4,4]
+    camera_pose = camera_pose.squeeze()
+
     H, W = image_size # unpack this tuple
     
     # create a grid of pixel coordinates for the image.

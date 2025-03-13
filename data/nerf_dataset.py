@@ -51,9 +51,19 @@ class NeRFDataset:
 
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
-        image = Image.open(image_path)
+
+        # Open image, convert to RGB
+        image = Image.open(image_path).convert('RGB')
+
+        # Resize image to a fixed size, e.g., 256x256
+        target_size = (256, 256) # width, height
+        image = image.resize( target_size, Image.BILINEAR )
+
+        # Convert to numpy array and normalize to [0, 1]
         image = np.array(image).astype(np.float32) / 255.0
-        image = torch.from_numpy(image).permute(2, 0, 1)  # Convert to (C, H, W) for PyTorch
+
+        # convert to torch tensor and re-arrange dimensions to (C, H, W)
+        image = torch.from_numpy(image).permute(2, 0, 1)
 
         pose = self.poses[idx]
         if pose is not None:
