@@ -4,6 +4,9 @@ import imageio
 
 def display_image(image, title=None):
     """Display an RGB image using matplotlib."""
+    if image.dtype != np.uint8:
+        image = np.clip( image, 0, 1 )
+
     plt.imshow(image)
     if title:
         plt.title(title)

@@ -1,6 +1,6 @@
 from models.nerf_model import NeRF
 from render.volume_render import volume_render
-from utils.rays import generate_rays
+from rays import generate_rays
 
 def render_image( camera_pose, image_size, model, near, far, num_samples=64 ):
 
