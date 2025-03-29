@@ -34,7 +34,7 @@ colmap mapper \
   --image_path /workspaces/NeRF/data/raw/plant/images/ \
   --output_path /workspaces/NeRF/sparse
 
-# Run this after: run_colmap.sh, or just combine these 2 scripts
+# Export the txt file(s)
 # Make sure the output directory exists
 mkdir -p sparse/0_txt
 
