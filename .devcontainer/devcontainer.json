@@ -1,0 +1,14 @@
+{
+  "name": "NeRF Project",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    // Optional: VS Code settings for your container
+  },
+  "extensions": [
+    "ms-python.python"
+  ],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "remoteUser": "vscode"
+}

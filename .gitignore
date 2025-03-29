@@ -1,0 +1,5 @@
+.venv/
+colmap.db
+data/processed/plant/poses/
+sparse/
+.gitlab-ci-temp.yml
