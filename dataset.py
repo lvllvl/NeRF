@@ -3,6 +3,8 @@ import numpy as np
 from PIL import Image
 import torch
 
+# Load images and poses for NeRF
+
 class NeRFDataset:
     def __init__(self, data_dir, load_without_pose=False):
         self.data_dir = data_dir

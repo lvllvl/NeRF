@@ -1,9 +1,9 @@
 # this is a scaffold version of NeRF 
-# TODO: rename this file to main.py or model.py
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+# TODO: NeRF MLP!
 
 # ------------------------------
 # 📦 1. Ray Sampling
