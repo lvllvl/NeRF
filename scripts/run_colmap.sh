@@ -2,19 +2,25 @@
 
 #!/bin/bash
 
-# ========== CHECK COLMAP ==========
+export PATH="$(pwd)/colmap/build/src/colmap/exe:$PATH"
+echo "Using COLMAP from: $(which colmap)"
+colmap -h | head -n 5
 
-# If using headless COLMAP from source build
-COLMAP_BIN="/content/colmap/build/colmap"
+# Check for COLMAP
+if ! command -v colmap &> /dev/null; then
+  echo "❌ Error: COLMAP not found."
+  exit 1
+fi
+export QT_QPA_PLATFORM=offscreen
 
-if [ ! -f "$COLMAP_BIN" ]; then
-  echo "❌ COLMAP not found at $COLMAP_BIN"
-  echo "👉 Please run the install cell in your Colab notebook first."
+
+# Check for COLMAP
+if ! command -v colmap &> /dev/null; then
+  echo "❌ Error: COLMAP not found."
   exit 1
 fi
 
-# ========== SET PATHS ==========
-
+# Set paths
 IMAGES_DIR="data/raw"
 OUTPUT_DIR="data/colmap_output"
 DB_PATH="$OUTPUT_DIR/database.db"
@@ -23,28 +29,26 @@ SPARSE_DIR="$OUTPUT_DIR/sparse"
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$SPARSE_DIR"
 
-# ========== STEP 1: FEATURE EXTRACTION ==========
-
-"$COLMAP_BIN" feature_extractor \
+# Step 1: Feature extraction
+colmap feature_extractor \
     --database_path "$DB_PATH" \
     --image_path "$IMAGES_DIR" \
-    --ImageReader.single_camera 1
+    --ImageReader.single_camera 1 \
+    --SiftExtraction.use_gpu 0
 
-# ========== STEP 2: MATCHING ==========
+# Step 2: Feature matching
+colmap exhaustive_matcher \
+    --database_path "$DB_PATH" \
+    --SiftMatching.use_gpu 0
 
-"$COLMAP_BIN" sequential_matcher \
-    --database_path "$DB_PATH"
-
-# ========== STEP 3: SPARSE RECONSTRUCTION ==========
-
-"$COLMAP_BIN" mapper \
+# Step 3: Sparse reconstruction
+colmap mapper \
     --database_path "$DB_PATH" \
     --image_path "$IMAGES_DIR" \
     --output_path "$SPARSE_DIR"
 
-# ========== STEP 4: OPTIONAL TXT CONVERSION ==========
-
-"$COLMAP_BIN" model_converter \
+# Step 4: Optional model converter
+colmap model_converter \
     --input_path "$SPARSE_DIR/0" \
     --output_path "$SPARSE_DIR/0" \
     --output_type TXT
