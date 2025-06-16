@@ -1,35 +1,50 @@
 #!/bin/bash
 
-# Setting paths 
+#!/bin/bash
+
+# ========== CHECK COLMAP ==========
+
+# If using headless COLMAP from source build
+COLMAP_BIN="/content/colmap/build/colmap"
+
+if [ ! -f "$COLMAP_BIN" ]; then
+  echo "❌ COLMAP not found at $COLMAP_BIN"
+  echo "👉 Please run the install cell in your Colab notebook first."
+  exit 1
+fi
+
+# ========== SET PATHS ==========
+
 IMAGES_DIR="data/raw"
 OUTPUT_DIR="data/colmap_output"
 DB_PATH="$OUTPUT_DIR/database.db"
 SPARSE_DIR="$OUTPUT_DIR/sparse"
 
-# Create output directory
-mdir -p "$OUTPUT_DIR"
-mdir -p "$SPARSE_DIR"
+mkdir -p "$OUTPUT_DIR"
+mkdir -p "$SPARSE_DIR"
 
-# Step 1: Feature extraction
-colmap feature_extractor \
+# ========== STEP 1: FEATURE EXTRACTION ==========
+
+"$COLMAP_BIN" feature_extractor \
     --database_path "$DB_PATH" \
-    --image_path "$IMAGES_DIR"
-    --ImageReader.single_camera 1 \
-    --SiftExtraction.use_gpu 1
+    --image_path "$IMAGES_DIR" \
+    --ImageReader.single_camera 1
 
-# Step 2: Feature matching (exhaustive is simplest; sequential is better for video)
-colmap exhaustive_matcher \
+# ========== STEP 2: MATCHING ==========
+
+"$COLMAP_BIN" sequential_matcher \
     --database_path "$DB_PATH"
-    --SiftMatching.use_gpu 1
 
-# Step 3: Sparse reconstruction (Structure from Motion)
-colmap mapper \
+# ========== STEP 3: SPARSE RECONSTRUCTION ==========
+
+"$COLMAP_BIN" mapper \
     --database_path "$DB_PATH" \
     --image_path "$IMAGES_DIR" \
     --output_path "$SPARSE_DIR"
 
-# Step 4: Optionally convert to text for inspection
-colmap model_converter \
+# ========== STEP 4: OPTIONAL TXT CONVERSION ==========
+
+"$COLMAP_BIN" model_converter \
     --input_path "$SPARSE_DIR/0" \
     --output_path "$SPARSE_DIR/0" \
     --output_type TXT
