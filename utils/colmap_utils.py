@@ -55,7 +55,7 @@ def print_colmap_metadata_summary(path):
 
 def visualize_camera_poses_3d(path):
     '''
-    Visualize the caeera poses
+    Visualize the camera poses
     '''
     images = read_images_binary( os.path.join( path, 'sparse/0/images.bin') )
 
@@ -87,8 +87,11 @@ def visualize_camera_poses_3d(path):
     plt.show()
 
 
-
 def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.json"):
+    '''
+    Read binary files, decode usings COLMAP's data spec
+    Map files to JSON format, with camera poses, focal length, image paths, etc. 
+    '''
     images = read_images_binary(os.path.join(path, 'sparse/0/images.bin'))
     cameras = read_cameras_binary(os.path.join(path, 'sparse/0/cameras.bin'))
 
