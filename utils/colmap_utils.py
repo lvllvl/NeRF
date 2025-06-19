@@ -58,18 +58,19 @@ def visualize_camera_poses_3d(path):
     '''
     Visualize the camera poses
     '''
+    # Read images from binary
     images = read_images_binary( os.path.join( path, 'sparse/0/images.bin') )
 
     fig = plt.figure( figsize=(8,8))
     ax = fig.add_subplot(111, projection='3d')
 
-    for img in images.values():
-        R = qvec2rotmat(img.qvec)  # (3, 3)
-        t = img.tvec.reshape(3, 1) # (3, 1)
+    for img in images.values(): # iterate through all images
+        R = qvec2rotmat(img.qvec)  # (3, 3), turn quaternion into rotation matrix
+        t = img.tvec.reshape(3, 1) # (3, 1), translation vector
 
-        # COLMAP world-to-camera, so invert to get camera-to-world:
-        C = -R.T @ t  # camera center in world coords
-        direction = R.T @ np.array([[0, 0, 1]]).T  # camera looks down +z
+        # COLMAP = world-to-camera, inverting to get camera-to-world:
+        C = (-R.T @ t).flatten()  # camera center in world coords, shape=(3, )
+        direction = (R.T @ np.array([[0, 0, 1]]).T).flatten()  # camera looks down +z, shape=(3,)
 
         ax.scatter(C[0], C[1], C[2], c='blue', marker='o')
         ax.quiver(
@@ -85,7 +86,11 @@ def visualize_camera_poses_3d(path):
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
     ax.view_init(elev=10, azim=-90)
-    plt.show()
+
+    os.makedirs( "visualization", exist_ok=True )
+    out_path = os.path.join( "visualization", "camera_poses.png" )
+    plt.savefig( out_path )
+    print( f"Saved camera pose visualization to {out_path}" )
 
 
 def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.json"):
