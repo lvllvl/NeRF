@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from read_write_model import read_images_binary, read_cameras_binary, qvec2rotmat # impport from COLMAP file
+from utils.read_write_model import read_images_binary, read_cameras_binary, qvec2rotmat # impport from COLMAP file
 import numpy as np
+from PIL import Image
 import json
 import os
 
@@ -47,7 +48,7 @@ def print_colmap_metadata_summary(path):
     for img in images.values():
         cam = cameras[ img.camera_id ]
         print( f"Image: {img.name}" )
-        print( f" -> ID: {img.image_id}" )
+        print( f" -> ID: {img.id}" )
         print( f" -> qvec: {img.qvec}" )
         print( f" -> tvec: {img.tvec}" )
         print( f" -> Intrinsics: {cam.model} {cam.params}" )
@@ -94,6 +95,12 @@ def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.
     '''
     images = read_images_binary(os.path.join(path, 'sparse/0/images.bin'))
     cameras = read_cameras_binary(os.path.join(path, 'sparse/0/cameras.bin'))
+    
+    cam = next(iter(cameras.values()))
+    fx = cam.params[0]
+    h = cam.height
+    w = cam.width
+    camera_angle_x = 2 * np.arctan(w / (2 * fx))
 
     frames = []
     for img in images.values():
@@ -102,6 +109,16 @@ def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.
         c2w = np.eye(4)
         c2w[:3, :3] = R.T
         c2w[:3, 3:] = -R.T @ t
+    
+        # Validation: Verify that COLMAP process was accurate
+        img_path = os.path.join( "data", image_dir, img.name ) # pull image from disk
+        print("Verifying image path:", img_path)
+        
+        with Image.open( img_path ) as im:
+            img_w, img_h = im.size # grab data from raw image
+        if (img_w != cam.width) or (img_h != cam.height): # check for any discrepancies between COLMAP info and raw disk image info
+            break
+            print(f"Warning: Disk image {img.name} size ({img_w}, {img_h}) does not match COLMAP size ({cam.width}, {cam.height})")
 
         frame = {
             "file_path": f"{image_dir}/{img.name}",
@@ -109,13 +126,10 @@ def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.
         }
         frames.append(frame)
 
-    cam = next(iter(cameras.values()))
-    fx = cam.params[0]
-    w = cam.width
-    camera_angle_x = 2 * np.arctan(w / (2 * fx))
-
     transforms = {
         "camera_angle_x": camera_angle_x,
+        "height": h,
+        "width": w,
         "frames": frames
     }
 

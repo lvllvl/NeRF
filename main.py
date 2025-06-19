@@ -17,6 +17,10 @@ def get_args():
     return args
 
 def test_colmap_pipeline( colmap_path="data/colmap_output" ):
+
+    print('\n CONVERTING to transforms.json:')
+    colmap_to_transforms_json( colmap_path, image_dir='raw', output_file='transforms.json')
+    
     print("Listing Images:\n")
     image_names = list_colmap_images( colmap_path )
     print(image_names)
@@ -27,8 +31,6 @@ def test_colmap_pipeline( colmap_path="data/colmap_output" ):
     print('\n Visualizing Camera Poses:')
     visualize_camera_poses_3d( colmap_path )
 
-    print('\n CONVERTITY to transforms.json:')
-    colmap_to_transforms_json( colmap_path, image_dir='raw', output_file='transforms.json')
 
 
 if __name__ == "__main__":
