@@ -1,0 +1,42 @@
+# config.yml
+
+# === Data Settings ===
+data:
+  dataset_dir: "data/raw"
+  colmap_output: "data/colmap_output"
+  downscale_factor: 2            # downscale input images (2 = half size)
+  train_split: 0.9               # % of images used for training
+  img_height: null               # override image height (e.g. 400); null = use from file
+  img_width: null                # override image width (e.g. 600)
+
+# === Ray Sampling ===
+rays:
+  rays_per_batch: 1024
+  near: 2.0
+  far: 6.0
+  stratified_samples: 64
+  hierarchical_samples: 128
+
+# === Training ===
+training:
+  epochs: 20
+  steps_per_epoch: 1000
+  batch_size: 1
+  learning_rate: 5e-4
+  lr_decay: 500                 # decay step count
+  checkpoint_every: 5          # save every N epochs
+  save_dir: "checkpoints"
+
+# === Model ===
+model:
+  positional_encoding_levels: 10
+  view_encoding_levels: 4
+  hidden_dim: 256
+  num_layers: 8
+  use_viewdirs: true
+
+# === Rendering ===
+render:
+  test_poses_path: "data/colmap_output/transforms_test.json"
+  output_dir: "visualization/rendered"
+  render_resolution_factor: 2     # 1 = full res, 2 = half res, etc.
