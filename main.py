@@ -17,7 +17,10 @@ def get_args():
     return args
 
 def test_colmap_pipeline( colmap_path="data/colmap_output" ):
-
+    '''
+    Use colmap utils functions to vallidate & process COLMAP data.
+    '''
+    
     print('\n CONVERTING to transforms.json:')
     colmap_to_transforms_json( colmap_path, image_dir='raw', output_file='transforms.json')
     
