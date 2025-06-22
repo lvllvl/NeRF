@@ -141,4 +141,4 @@ def colmap_to_transforms_json(path, image_dir="images", output_file="transforms.
     with open(os.path.join(path, output_file), 'w') as f:
         json.dump(transforms, f, indent=4)
 
-    print(f"✅ transforms.json saved to {output_file}")
+    print(f"transforms.json saved to {output_file}")
