@@ -22,4 +22,4 @@ jobs:
 
       - name: Run Pytest
         run: |
-          pytest -v tests/
+          pytest -v tests/ # ignore imported tests in colmap repo 

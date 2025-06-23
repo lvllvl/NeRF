@@ -1,5 +1,6 @@
-# Volume Rendering
+import numpy as np
 
+# Volume Rendering
 def generate_rays( height, width, focal, c2w ):
     
     """
