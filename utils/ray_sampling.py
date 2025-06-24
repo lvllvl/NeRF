@@ -33,3 +33,8 @@ def sample_points_along_rays( ray_origins, ray_directions, near, far, num_sample
     sample_points = ray_origins.unsqueeze( 1 ) + t_vals( -1 ) * ray_directions.unsqueeze( 1 )
 
     return sample_points
+
+
+    # TODO: stratified sampling 
+    # TODO: PDF sampling utitlities ?
+    

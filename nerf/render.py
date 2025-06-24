@@ -1,6 +1,15 @@
 import numpy as np
 
 # Volume Rendering
+def volume_rendering():
+    pass
+
+def hierarchical_sampling():
+    pass
+
+def pipeline_wrapper():
+    pass
+
 def generate_rays( height, width, focal, c2w ):
     
     """
@@ -42,3 +51,8 @@ def generate_rays( height, width, focal, c2w ):
     rays_o = np.broadcast_to( c2w[:3, 3], rays_d.shape )
 
     return rays_o, rays_d # Bothh shapes should be (H, W, 3)
+
+
+# TODO: world-to-cam function 
+# TODO: cam2ndc fucntion 
+# TODO: ndc2screen
