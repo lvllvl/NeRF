@@ -1,9 +1,6 @@
 import numpy as np
-from nerf.render import generate_rays
-
-# validate generate_rays() function
-# what cases should we expect? include edge cases. 
-# if we 
+import torch
+from nerf.render import generate_rays, volume_rendering, hierarchical_sampling
 
 def test_generate_rays_basic():
 
@@ -35,3 +32,25 @@ def test_generate_rays_basic():
     rays_o2, rays_d2 = generate_rays(height, width, focal, c2w)
     np.testing.assert_allclose(rays_o, rays_o2)
     np.testing.assert_allclose(rays_d, rays_d2)
+
+def test_volume_rendering_shapes():
+    N_rays, N_samples = 2, 5
+    rgb   = torch.rand(N_rays, N_samples, 3)
+    sigma = torch.rand(N_rays, N_samples)
+    t     = torch.linspace(0.1, 1.0, steps=N_samples).expand(N_rays, N_samples)
+
+    out = volume_rendering(rgb, sigma, t)
+    assert out["rgb"].shape   == (N_rays, 3)
+    assert out["depth"].shape == (N_rays,)
+    assert out["weights"].shape == (N_rays, N_samples)
+    assert torch.all(out["weights"] >= 0)
+
+def test_hierarchical_sampling_basic():
+    N_rays, N_bins, N_fine = 3, 4, 10
+    bins = torch.linspace(0.0, 1.0, steps=N_bins).expand(N_rays, N_bins)
+    # skewed weights → concentrate near last bin
+    weights = torch.tensor([[0.1,0.1,0.1,0.7]]).expand(N_rays, N_bins)
+    t_fine = hierarchical_sampling(bins, weights, N_fine, rand=False)
+    assert t_fine.shape == (N_rays, N_fine)
+    # All fine samples should lie within [0,1]
+    assert torch.all(t_fine >= 0.0) and torch.all(t_fine <= 1.0)
